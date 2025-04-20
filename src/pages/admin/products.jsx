@@ -11,21 +11,21 @@ export default function AdminProductsPage() {
         console.log(response.data);
         setProducts(response.data);
       });
-  }
-  , []
-)
-/*axios
+  }, []);
+  /*axios
 .get(import.meta.env.VITE_BACKEND_URL + "/api/product")
 .then((response) => {
   console.log(response.data);
 });*/
   return (
     <div className="w-full h-full rounded-lg relative">
-      <Link to={"/admin/addProduct"} className="text-white absolute bg-gray-700 p-[12px] text-3x1 rounded-full cursor-pointer hover:bg-gray-300 hover:text-gray-700 right-5 bottom-5">
-      <FaPlus />
+      <Link
+        to={"/admin/addProduct"}
+        className="text-white absolute bg-gray-700 p-[12px] text-3x1 rounded-full cursor-pointer hover:bg-gray-300 hover:text-gray-700 right-5 bottom-5"
+      >
+        <FaPlus />
+      </Link>
 
-        </Link>
-        
       <table className="w-full">
         <thead>
           <tr>
@@ -54,9 +54,10 @@ export default function AdminProductsPage() {
               </tr>
             );
           })}
-          
         </tbody>
       </table>
     </div>
   );
 }
+//https://rdcumovmyyqrghkeuakp.supabase.co
+//eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkY3Vtb3ZteXlxcmdoa2V1YWtwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ3OTE2NTYsImV4cCI6MjA2MDM2NzY1Nn0.Y1HcMCFAwpeCSD7UV5QXG4gNI_EyOzbGhFgnDJwd4V4
