@@ -4,6 +4,7 @@ import { MdWarehouse } from "react-icons/md";
 import { FaFileInvoice } from "react-icons/fa6";
 import AdminProductsPage from "./admin/products";
 import AddProductForm from "./admin/addProductForm";
+import EditProductForm from "./admin/editProduct";
 export default function AdminPage() {
     return (
         <div className="w-full h-screen bg-gray-200 flex p-2">
@@ -18,6 +19,7 @@ export default function AdminPage() {
                 <Route path="/products" element={<AdminProductsPage/>}/>
                 <Route path="/orders" element={<h1>Orders</h1>}/>
                 <Route path="/addProduct" element={<AddProductForm/>}/>
+                <Route path="/editProduct" element={<EditProductForm/>}/>
             </Routes>
         </div>
            

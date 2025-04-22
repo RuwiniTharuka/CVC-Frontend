@@ -4,43 +4,52 @@ import toast from "react-hot-toast";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import uploadMediaToSupabase from "../../utils/mediaupload";
 
-export default function AddProductForm() {
+export default function EditProductForm() {
   const locationData = useLocation()
   const navigate = useNavigate();
-  if (locationData.state == null) {
-    toast.error("Please select a product to edit")
-    window.location.href = "/admin/products"
-  }
-  const [productId, setProductId] = useState("locationData.state.productId");
-  const [name, setName] = useState("");
-  const [altName, setAltNames] = useState("");
-  const [price, setPrice] = useState();
-  const [labeledPrice, setlabeledPrice] = useState();
-  const [description, setDescription] = useState("");
-  const [stock, setStock] = useState("");
+if(locationData.state == null){
+  toast.error("Please select a product to edit")
+  window.location.href = "/admin/products"
+}
+  const [productId, setProductId] = useState(locationData.state.productId);
+  const [name, setName] = useState(locationData.state.name);
+  const [altName, setAltNames] = useState(locationData.state.altNames.join(","));
+  const [price, setPrice] = useState(locationData.state.price);
+  const [labeledPrice, setlabeledPrice] = useState(locationData.state.labeledPrice);
+  const [description, setDescription] = useState(locationData.state.description);
+  const [stock, setStock] = useState(locationData.state.stock);
   const [images, setImages] = useState([]);
+  
 
-
+  
   async function handleSubmit() {
-    try {
-      const promisesArray = [];
+      if(images.length===0){
+        const promisesArray = [];
 
-      for (let i = 0; i < images.length; i++) {
+        for (let i = 0; i < images.length; i++) {
+          const Promise=mediaUpload(images[i]);
+          promisesArray[i] = Promise;
+        }
+      }
+    try {
+      let result=await Promise.all(promisesArray);
+  if(images.length==0){
+    result=locationData.state.images
+  }
+     /* for (let i = 0; i < images.length; i++) {
         promisesArray[i] = uploadMediaToSupabase(images[i]);
       }
-
-      const imgUrls = await Promise.all(promisesArray);
-
+      const imgUrls = await Promise.all(promisesArray);*/
       const altNameInArray = altName.split(",");
       const product = {
-        productId,
-        name,
+      
+        name: name,
         altName: altNameInArray,
-        price,
-        labeledPrice,
-        description,
-        stock,
-        images: imgUrls,
+        price:price,
+        labeledPrice:labeledPrice,
+        description:description,
+        stock:stock,
+        images: result,
       };
 
       const token = localStorage.getItem("token");
@@ -77,10 +86,11 @@ export default function AddProductForm() {
     <div className="w-full h-full rounded-lg flex justify-center items-center">
       <div className="w-[500px] h-[600px] rounded-lg shadow-lg flex flex-col items-center">
         <h1 className="text-3xl font-bold text-gray-700 m-[10px]">
-          Add Product
+          Edit Product
         </h1>
 
         <input
+          disabled
           value={productId}
           onChange={(e) => {
             setProductId(e.target.value);
@@ -161,7 +171,7 @@ export default function AddProductForm() {
             onClick={handleSubmit}
             className="bg-green-500 cursor-pointer text-white p-[10px]  w-[180px] text-center rounded-lg ml-[10px]  hover:bg-green-600 "
           >
-            Add Product
+            Edit Product
           </button>
         </div>
       </div>
