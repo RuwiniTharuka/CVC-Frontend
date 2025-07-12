@@ -1,61 +1,63 @@
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import uploadMediaToSupabase from "../../utils/mediaupload";
 
 export default function EditProductForm() {
-  const locationData = useLocation()
+  const locationData = useLocation();
   const navigate = useNavigate();
-if(locationData.state == null){
-  toast.error("Please select a product to edit")
-  window.location.href = "/admin/products"
-}
-  const [productId, setProductId] = useState(locationData.state.productId);
-  const [name, setName] = useState(locationData.state.name);
-  const [altName, setAltNames] = useState(locationData.state.altNames.join(","));
-  const [price, setPrice] = useState(locationData.state.price);
-  const [labeledPrice, setlabeledPrice] = useState(locationData.state.labeledPrice);
-  const [description, setDescription] = useState(locationData.state.description);
-  const [stock, setStock] = useState(locationData.state.stock);
+
+  useEffect(() => {
+    if (!locationData.state) {
+      toast.error("Please select a product to edit");
+      navigate("/admin/products");
+    }
+  }, [locationData.state]);
+
+  const [productId, setProductId] = useState(
+    locationData?.state?.productId || ""
+  );
+  const [name, setName] = useState(locationData?.state?.name || "");
+  const [altName, setAltNames] = useState(
+    locationData?.state?.altNames?.join(",") || ""
+  );
+  const [price, setPrice] = useState(locationData?.state?.price || "");
+  const [labeledPrice, setLabeledPrice] = useState(
+    locationData?.state?.labeledPrice || ""
+  );
+  const [description, setDescription] = useState(
+    locationData?.state?.description || ""
+  );
+  const [stock, setStock] = useState(locationData?.state?.stock || "");
   const [images, setImages] = useState([]);
-  
+  const existingImages = locationData?.state?.images || [];
 
-  
-  async function handleSubmit() {
-      if(images.length===0){
-        const promisesArray = [];
-
-        for (let i = 0; i < images.length; i++) {
-          const Promise=mediaUpload(images[i]);
-          promisesArray[i] = Promise;
-        }
-      }
+  const handleSubmit = async () => {
     try {
-      let result=await Promise.all(promisesArray);
-  if(images.length==0){
-    result=locationData.state.images
-  }
-     /* for (let i = 0; i < images.length; i++) {
-        promisesArray[i] = uploadMediaToSupabase(images[i]);
+      let result = existingImages;
+
+      if (images.length > 0) {
+        const uploadPromises = Array.from(images).map((file) =>
+          uploadMediaToSupabase(file)
+        );
+        result = await Promise.all(uploadPromises);
       }
-      const imgUrls = await Promise.all(promisesArray);*/
-      const altNameInArray = altName.split(",");
+
       const product = {
-      
-        name: name,
-        altName: altNameInArray,
-        price:price,
-        labeledPrice:labeledPrice,
-        description:description,
-        stock:stock,
+        name,
+        altName: altName.split(",").map((s) => s.trim()),
+        price,
+        labeledPrice,
+        description,
+        stock,
         images: result,
       };
 
       const token = localStorage.getItem("token");
 
-      await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/product`,
+      await axios.put(
+        `${import.meta.env.VITE_BACKEND_URL}/api/product/${productId}`,
         product,
         {
           headers: {
@@ -64,23 +66,13 @@ if(locationData.state == null){
         }
       );
 
-      toast.success("Product added successfully");
+      toast.success("Product updated successfully");
       navigate("/admin/products");
     } catch (error) {
       console.error(error);
-      toast.error("Product adding failed");
+      toast.error("Product update failed");
     }
-  }
-
-  /* }).then(() => {
-        toast.success("product adding successfully");
-        navigate("/admin/products");
-      }).catch(() => {
-        toast.error("Product adding failed");
-      })*/
-
-  //toast.arror("file upload failed")
-  //    toast.success("Form Submited")
+  };
 
   return (
     <div className="w-full h-full rounded-lg flex justify-center items-center">
@@ -92,70 +84,51 @@ if(locationData.state == null){
         <input
           disabled
           value={productId}
-          onChange={(e) => {
-            setProductId(e.target.value);
-          }}
           className="w-[400px] h-[50px] border border-gray-500 rounded-xl text-center m-[5px]"
           placeholder="Product ID"
         />
         <input
           value={name}
-          onChange={(e) => {
-            setName(e.target.value);
-          }}
+          onChange={(e) => setName(e.target.value)}
           className="w-[400px] h-[50px] border border-gray-500 rounded-xl text-center m-[5px]"
           placeholder="Product Name"
         />
         <input
           value={altName}
-          onChange={(e) => {
-            setAltNames(e.target.value);
-          }}
+          onChange={(e) => setAltNames(e.target.value)}
           className="w-[400px] h-[50px] border border-gray-500 rounded-xl text-center m-[5px]"
           placeholder="Alternative Name"
         />
         <input
-          value={price}
-          onChange={(e) => {
-            setPrice(e.target.value);
-          }}
           type="number"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
           className="w-[400px] h-[50px] border border-gray-500 rounded-xl text-center m-[5px]"
           placeholder="Price"
         />
         <input
-          value={labeledPrice}
-          onChange={(e) => {
-            setlabeledPrice(e.target.value);
-          }}
           type="number"
+          value={labeledPrice}
+          onChange={(e) => setLabeledPrice(e.target.value)}
           className="w-[400px] h-[50px] border border-gray-500 rounded-xl text-center m-[5px]"
           placeholder="Labelled Price"
         />
         <textarea
           value={description}
-          onChange={(e) => {
-            setDescription(e.target.value);
-          }}
+          onChange={(e) => setDescription(e.target.value)}
           className="w-[400px] h-[50px] border border-gray-500 rounded-xl text-center m-[5px]"
           placeholder="Description"
         />
         <input
           type="file"
-          onChange={(e) => {
-            setImages(e.target.files);
-          }}
+          onChange={(e) => setImages(e.target.files)}
           multiple
           className="w-[400px] h-[50px] border border-gray-500 rounded-xl text-center m-[5px]"
-          placeholder="Product images"
         />
-        {/*stock*/}
         <input
-          value={stock}
-          onChange={(e) => {
-            setStock(e.target.value);
-          }}
           type="number"
+          value={stock}
+          onChange={(e) => setStock(e.target.value)}
           className="w-[400px] h-[50px] border border-gray-500 rounded-xl text-center m-[5px]"
           placeholder="Stock"
         />
@@ -163,13 +136,13 @@ if(locationData.state == null){
         <div className="w-[400px] h-[100px] flex justify-between items-center rounded-lg">
           <Link
             to={"/admin/products"}
-            className="bg-red-500 text-white p-[10px] w-[180px] text-center rounded-lg  hover:bg-red-600 "
+            className="bg-red-500 text-white p-[10px] w-[180px] text-center rounded-lg hover:bg-red-600"
           >
             Cancel
           </Link>
           <button
             onClick={handleSubmit}
-            className="bg-green-500 cursor-pointer text-white p-[10px]  w-[180px] text-center rounded-lg ml-[10px]  hover:bg-green-600 "
+            className="bg-green-500 cursor-pointer text-white p-[10px] w-[180px] text-center rounded-lg hover:bg-green-600"
           >
             Edit Product
           </button>

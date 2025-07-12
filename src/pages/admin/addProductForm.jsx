@@ -5,13 +5,10 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import uploadMediaToSupabase from "../../utils/mediaupload";
 
 export default function AddProductForm() {
-  const locationData = useLocation()
+  const locationData = useLocation();
   const navigate = useNavigate();
-  if (locationData.state == null) {
-    toast.error("Please select a product to edit")
-    window.location.href = "/admin/products"
-  }
-  const [productId, setProductId] = useState("locationData.state.productId");
+
+  const [productId, setProductId] = useState("");
   const [name, setName] = useState("");
   const [altName, setAltNames] = useState("");
   const [price, setPrice] = useState();
@@ -19,7 +16,6 @@ export default function AddProductForm() {
   const [description, setDescription] = useState("");
   const [stock, setStock] = useState("");
   const [images, setImages] = useState([]);
-
 
   async function handleSubmit() {
     try {
